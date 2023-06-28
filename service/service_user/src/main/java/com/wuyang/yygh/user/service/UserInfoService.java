@@ -19,7 +19,11 @@ import java.util.Map;
  * @since 2023-03-28
  */
 public interface UserInfoService extends IService<UserInfo> {
-
+    /**
+     * 用户手机号或者微信扫码登录，手机号和微信号绑定
+     * @param loginVo
+     * @return
+     */
     Map<String, Object> login(LoginVo loginVo);
 
     UserInfo selectByOpenId(String openid);

@@ -52,7 +52,6 @@ public class ScheduleServiceImpl implements ScheduleService {
         //paramMap 转换department对象
         String paramMapString = JSONObject.toJSONString(stringObjectMap);
         Schedule schedule = JSONObject.parseObject(paramMapString, Schedule.class);
-
         //根据医院编号 和 排班编号查询
         Schedule scheduleExist = scheduleRepository.findScheduleByHoscodeAndHosScheduleId(schedule.getHoscode(),schedule.getHosScheduleId());
         //判断
@@ -85,7 +84,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void removeScheduleByHospitalIdAndScheId(Map<String, Object> paramMap) {
+    public void removeScheduleByRequest(Map<String, Object> paramMap) {
         String jsonString = JSONObject.toJSONString(paramMap);
         Schedule schedule = JSONObject.parseObject(jsonString, Schedule.class);
         Schedule byHoscodeAndHosScheduleId = scheduleRepository.findScheduleByHoscodeAndHosScheduleId(schedule.getHoscode(), schedule.getHosScheduleId());
@@ -98,7 +97,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     public Map<String, Object> getRuleSchedule(Integer page,Integer limit,String hoscode,String depcode) {
         //1 根据医院编号和科室编号查询
         Criteria criteria = Criteria.where("hoscode").is(hoscode).and("depcode").is(depcode);
-
         //2 根据工作日workDate期进行分组
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(criteria),//匹配条件
@@ -139,7 +137,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         result.put("total",total);
 
         //获取医院名称
-        Hospital hospital = hospitalService.findByHoscode(hoscode);
+        Hospital hospital = hospitalService.findHospitalByHoscode(hoscode);
         //其他基础数据
         Map<String, String> baseMap = new HashMap<>();
         baseMap.put("hosname",hospital.getHosname());
@@ -160,7 +158,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         Map<String, Object> result = new HashMap<>();
 
         //获取预约规则
-        Hospital hospital = hospitalService.findByHoscode(hoscode);
+        Hospital hospital = hospitalService.findHospitalByHoscode(hoscode);
         if(null == hospital) {
             throw new YyghException();
         }
@@ -231,7 +229,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         //其他基础数据
         Map<String, String> baseMap = new HashMap<>();
         //医院名称
-        baseMap.put("hosname", hospitalService.findByHoscode(hoscode).getHosname());
+        baseMap.put("hosname", hospitalService.findHospitalByHoscode(hoscode).getHosname());
         //科室
         Department department =departmentService.getDepartment(hoscode, depcode);
         //大科室名称
@@ -265,7 +263,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             throw new YyghException();
         }
         //获取预约规则信息
-        Hospital hospital = hospitalService.findByHoscode(scheduleInfo.getHoscode());
+        Hospital hospital = hospitalService.findHospitalByHoscode(scheduleInfo.getHoscode());
         if(null == hospital) {
             throw new YyghException();
         }
@@ -326,7 +324,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
     private void packageSchedule(Schedule schedule){
-        Hospital hospital = hospitalService.findByHoscode(schedule.getHoscode());
+        Hospital hospital = hospitalService.findHospitalByHoscode(schedule.getHoscode());
         Department department = departmentService.getDepartment(hospital.getHoscode(), schedule.getDepcode());
         schedule.getParam().put("hosname",hospital.getHosname());
         schedule.getParam().put("depname",department.getDepname());

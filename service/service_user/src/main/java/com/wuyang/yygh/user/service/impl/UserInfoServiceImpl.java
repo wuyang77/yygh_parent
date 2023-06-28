@@ -50,61 +50,73 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         //1.获取用户输入的手机号和验证码
         String phone = loginVo.getPhone();
         String code = loginVo.getCode();
-        //2.要对手机号和验证码进行非空校验
-        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)){
-            throw new YyghException(20001,"用户名和验证码");
-        }
-        //3.用户输入的验证码和服务器端redis中的验证码比较 TODO
-        if (code.equals(redisTemplate.opsForValue().get(phone))) {
-            throw new YyghException(20001,"验证码不正确");
-        }
-        //4.判断是不是首次登录，如果是首次登录，完成自动注册功能
-        UserInfo userInfo = null;
-        String openid = loginVo.getOpenid();
 
-        if (StringUtils.isEmpty(openid)) {//手机登录
-            QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("phone",phone);
-            userInfo = baseMapper.selectOne(queryWrapper);
+        //对手机号和验证码进行非空校验
+        if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)){
+            throw new YyghException(20001,"数据为空");
+        }
+
+        //用户输入的验证码和服务器端redis中的验证码比较是否相等 TODO
+        if (code.equals(redisTemplate.opsForValue().get(phone))) {
+            throw new YyghException(20002,"验证码不正确");
+        }
+
+        //4.判断是不是首次登录，如果是首次登录，完成自动注册功能
+        String openid = loginVo.getOpenid();
+                if (StringUtils.isEmpty(openid)) {//手机登录
+            QueryWrapper<UserInfo> queryWrapper2 = new QueryWrapper<>();
+            queryWrapper2.eq("phone",phone);
+            UserInfo userInfo1 = baseMapper.selectOne(queryWrapper2);
+
             //如果返回对象为空，就是第一次登录，存到数据库登录数据
-            if (userInfo == null) {//首次登录，完成自动注册功能
-                userInfo.setPhone(phone);
-                userInfo.setStatus(1);
-                userInfo.setCreateTime(new Date());
-                baseMapper.insert(userInfo);
+            if (userInfo1 == null) {//首次登录，完成自动注册功能
+                System.out.println("输出");
+                userInfo1 = new UserInfo();
+                userInfo1.setPhone(phone);
+                userInfo1.setStatus(1);
+                userInfo1.setCreateTime(new Date());
+                baseMapper.insert(userInfo1);
             }
             //判断用户是否可用
-            if(userInfo.getStatus() == 0) {
+            if(userInfo1.getStatus() == 0) {
                 throw new YyghException(20001,"用户已经禁用");
             }
+
         }else {//微信绑定手机号
             //1 创建userInfo对象，用于存在最终所有数据
-            UserInfo userInfoFinal = new UserInfo();
             QueryWrapper<UserInfo> phoneWrapper = new QueryWrapper<>();
             phoneWrapper.eq("phone",phone);
-            UserInfo userInfo1 = baseMapper.selectOne(phoneWrapper);
-            if (userInfo1 != null) {
-                // 如果查询手机号对应数据,封装到userInfoFinal
-                BeanUtils.copyProperties(userInfo1,userInfoFinal);
+            UserInfo userInfo2 = baseMapper.selectOne(phoneWrapper);
+            UserInfo userInfoFinal =null;
+            if (userInfo2 != null) {
+                //判断用户是否可用
+                if(userInfo2.getStatus() == 0) {
+                    throw new YyghException(20001,"用户已经禁用");
+                }
+                // 如果查询到手机号对应数据,封装到userInfoFinal
+                userInfoFinal = new UserInfo();
+                BeanUtils.copyProperties(userInfo2,userInfoFinal);
                 //把手机号数据删除
                 baseMapper.delete(phoneWrapper);
+                userInfoFinal.setPhone(phone);
             }else {
                 userInfoFinal.setPhone(phone);
             }
-            QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("openid",openid);
-            userInfo = baseMapper.selectOne(queryWrapper);
-            userInfoFinal.setId(userInfo.getId());
-            userInfoFinal.setNickName(userInfo.getNickName());
+
+            QueryWrapper<UserInfo> queryWrapper3 = new QueryWrapper<>();
+            queryWrapper3.eq("openid",openid);
+            UserInfo userInfo3 = baseMapper.selectOne(queryWrapper3);
+            userInfoFinal.setId(userInfo3.getId());
+            userInfoFinal.setNickName(userInfo3.getNickName());
             userInfoFinal.setOpenid(openid);
-            userInfoFinal.setId(userInfo.getId());
+            userInfoFinal.setId(userInfo3.getId());
             baseMapper.updateById(userInfoFinal);
         }
-        //5.判断用户的状态，如果用户不是首次登录，但是用户的状态不确定，要确定用户是否被禁用
-        if (userInfo.getStatus()==0) {
-            throw new YyghException(20001,"该用户已被禁用");
-        }
+
         //6.返回用户信息
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("phone",phone);
+        UserInfo userInfo = baseMapper.selectOne(queryWrapper);
         Map<String,Object> map = new HashMap<String,Object>();
         String name = userInfo.getName();
         if (StringUtils.isEmpty(name)) {

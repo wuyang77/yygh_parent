@@ -6,7 +6,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DepartmentRepositroy extends MongoRepository<Department,String> {
-    Department findByHoscodeAndDepcode(String hoscode, String depcode);
+    /**
+     * 根据医院编号查询医院科室信息
+     */
+    Department findDepartmentByHoscodeAndDepcode(String hoscode, String depcode);
 
     Department getDepartmentByHoscodeAndDepcode(String hoscode, String depcode);
 }

@@ -25,7 +25,7 @@ public class ScheduleController {
     private ScheduleService scheduleService;
 
     //根据医院编号和科室编号 ，查询排班规则数据
-    @ApiOperation(value ="查询排班规则数据")
+    @ApiOperation(value ="查询排班规则")
     @GetMapping("/getScheduleRule/{page}/{limit}/{hoscode}/{depcode}")
     public R getScheduleRule(@PathVariable(value = "page")Integer page,
                              @PathVariable(value = "limit")Integer limit,

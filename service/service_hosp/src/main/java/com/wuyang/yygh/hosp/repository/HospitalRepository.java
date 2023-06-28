@@ -9,9 +9,13 @@ import java.util.List;
 
 @Repository
 public interface HospitalRepository extends MongoRepository<Hospital,String> {
-  Hospital findByHoscode(String hoscode);
 
     Hospital getHospNameByHoscode(String hoscode);
 
     List<Hospital> findByHosnameLike(String name);
+
+    /**
+     * 根据医院编码查询医院对象
+     */
+    Hospital findHospByHoscode(String hoscode);
 }

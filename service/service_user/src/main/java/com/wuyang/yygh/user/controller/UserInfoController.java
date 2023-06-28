@@ -7,6 +7,7 @@ import com.wuyang.yygh.user.service.UserInfoService;
 import com.wuyang.yygh.user.util.AuthContextHolder;
 import com.wuyang.yygh.vo.user.LoginVo;
 import com.wuyang.yygh.vo.user.UserAuthVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.Map;
  * @author wuyang
  * @since 2023-03-28
  */
+@Api(tags = "用户登录接口")
 @RestController
 @RequestMapping("/api/userinfo")
 public class UserInfoController {
@@ -51,6 +53,5 @@ public class UserInfoController {
         userInfoService.userAuth(AuthContextHolder.getUserId(request),userAuthVo);
         return R.ok();
     }
-
 }
 

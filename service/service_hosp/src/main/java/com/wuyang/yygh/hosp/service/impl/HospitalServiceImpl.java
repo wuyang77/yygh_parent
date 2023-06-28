@@ -34,7 +34,7 @@ public class HospitalServiceImpl implements HospitalService {
         Hospital hospital = JSONObject.parseObject(string, Hospital.class);//将所有的字符串一一对应解析到Hospital中
 
         //1.根据医院编号查询医院信息
-        Hospital mongoHospital = hospitalRepository.findByHoscode(hospital.getHoscode());
+        Hospital mongoHospital = hospitalRepository.findHospByHoscode(hospital.getHoscode());
 
         if (mongoHospital == null){//2.如果没有这个医院信息，添加操作
             hospital.setStatus(0);
@@ -54,8 +54,8 @@ public class HospitalServiceImpl implements HospitalService {
     }
 
     @Override
-    public Hospital findByHoscode(String hoscode) {
-       return hospitalRepository.findByHoscode(hoscode);
+    public Hospital findHospitalByHoscode(String hoscode) {
+       return hospitalRepository.findHospByHoscode(hoscode);
     }
 
     //做待查询条件的分页

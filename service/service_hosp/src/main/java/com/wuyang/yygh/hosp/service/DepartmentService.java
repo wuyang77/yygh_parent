@@ -9,13 +9,20 @@ import java.util.List;
 import java.util.Map;
 
 public interface DepartmentService {
+    /**
+     * 添加医院科室
+     */
     void saveDepartment(Map<String, Object> stringObjectMap);
 
-
+    /**
+     * 获取医院科室分页列表
+     */
     Page findDeparmentPage(Map<String, Object> stringObjectMap);
 
+    /**
+     * 根据医院编号和科室编号删除医院科室
+     */
     void removeDepartment(String hoscode, String depcode);
-
     List<DepartmentVo> findDeptTree(String hoscode);
 
     //根据科室编号，和医院编号，查询科室名称

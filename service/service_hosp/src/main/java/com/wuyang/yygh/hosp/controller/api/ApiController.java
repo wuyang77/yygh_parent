@@ -32,7 +32,6 @@ public class ApiController {
     private HospitalService hospitalService;
     @Autowired
     private HospitalSetService hospitalSetService;
-
     @Autowired
     private DepartmentService departmentService;
     @Autowired
@@ -40,9 +39,7 @@ public class ApiController {
     @ApiOperation(value = "上传医院")
     @PostMapping("/saveHospital")
     public Result saveHospital(HttpServletRequest request) {
-
         Map<String, Object> stringObjectMap = HttpRequestHelper.switchMap(request.getParameterMap());
-
         //校验
         String sign = (String) stringObjectMap.get("sign");
         String platformSignKey = hospitalSetService.getSignKey((String)stringObjectMap.get("hoscode"));
@@ -56,8 +53,6 @@ public class ApiController {
         String logoData = (String)stringObjectMap.get("logoData");
         logoData = logoData.replaceAll(" ","+");
         stringObjectMap.put("logoData",logoData);
-
-
         hospitalService.save(stringObjectMap);
         return Result.ok(); //TODO 有待完善
     }
@@ -68,38 +63,34 @@ public class ApiController {
         Map<String, Object> stringObjectMap = HttpRequestHelper.switchMap(request.getParameterMap());
         //TODO 校验
         String hoscode = (String) stringObjectMap.get("hoscode");
-
-        Hospital hospital = hospitalService.findByHoscode(hoscode);
+        Hospital hospital = hospitalService.findHospitalByHoscode(hoscode);
         return Result.ok(hospital);
     }
 
-    @ApiOperation(value = "上传科室信息")
+    @ApiOperation(value = "上传医院科室信息")
     @PostMapping("/saveDepartment")
     public Result saveDepartment(HttpServletRequest request){
         Map<String, Object> stringObjectMap = HttpRequestHelper.switchMap(request.getParameterMap());
         //TODO 校验
-
         departmentService.saveDepartment(stringObjectMap);
         return Result.ok();
     }
 
-    @ApiOperation(value = "获取分页列表")
+    @ApiOperation(value = "获取医院科室分页列表")
     @PostMapping("/department/list")
     public Result getDepartmentPage(HttpServletRequest request){
         Map<String, Object> stringObjectMap = HttpRequestHelper.switchMap(request.getParameterMap());
         //TODO 校验
         Page page = departmentService.findDeparmentPage(stringObjectMap);
-
         return Result.ok(page);
     }
 
-    @ApiOperation(value = "删除科室")
+    @ApiOperation(value = "删除医院科室")
     @PostMapping("/department/remove")
     public Result removeDepartment(HttpServletRequest request){
         Map<String, Object> stringObjectMap = HttpRequestHelper.switchMap(request.getParameterMap());
         String hoscode = (String) stringObjectMap.get("hoscode");
         String depcode = (String) stringObjectMap.get("depcode");
-
         departmentService.removeDepartment(hoscode,depcode);
         return Result.ok();
     }
@@ -115,7 +106,7 @@ public class ApiController {
     @ApiOperation(value = "获取排班分页列表")
     @PostMapping("schedule/list")
     public Result schedule(HttpServletRequest request){
-        Map<String, Object> paramMap = HttpRequestHelper.switchMap(request.getParameterMap());
+        Map<String,Object> paramMap = HttpRequestHelper.switchMap(request.getParameterMap());
         //必须参数校验 略
         String hoscode = (String)paramMap.get("hoscode");
         //非必填
@@ -132,15 +123,14 @@ public class ApiController {
 
     @ApiOperation(value = "删除排班")
     @PostMapping("schedule/remove")
-    public Result removeScheduleByHospitalIdAndScheId(HttpServletRequest request){
+    public Result removeScheduleByRequest(HttpServletRequest request){
 
         Map<String, Object> paramMap = HttpRequestHelper.switchMap(request.getParameterMap());
         String hoscode = (String) paramMap.get("hoscode");
         String hosScheduleId = (String) paramMap.get("hosScheduleId");
-        scheduleService.removeScheduleByHospitalIdAndScheId(paramMap);
+        scheduleService.removeScheduleByRequest(paramMap);
         return Result.ok();
     }
-
 
     @Override
     public boolean equals(Object obj) {

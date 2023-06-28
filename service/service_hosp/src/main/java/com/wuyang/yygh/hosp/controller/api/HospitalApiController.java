@@ -70,7 +70,7 @@ public class HospitalApiController {
     @ApiOperation(value = "根据医院编号，查询医院信息")
     @GetMapping("/info/{hoscode}")
     public R info(@PathVariable(value = "hoscode")String hoscode){
-        Hospital byHoscode = hospitalService.findByHoscode(hoscode);
+        Hospital byHoscode = hospitalService.findHospitalByHoscode(hoscode);
         return R.ok().data("hospital",byHoscode);
     }
     @ApiOperation(value = "根据医院编号，查询当前医院底下所有的科室信息,大科室嵌套小科室")

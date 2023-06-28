@@ -107,8 +107,7 @@ public class ApiServiceImpl implements ApiService {
 
         //  http://localhost:8201/api/hosp/saveHospital
         //httpclient
-        JSONObject respone =
-                HttpRequestHelper.sendRequest(paramMap,this.getApiUrl()+"/api/hosp/saveHospital");
+        JSONObject respone = HttpRequestHelper.sendRequest(paramMap,this.getApiUrl()+"/api/hosp/saveHospital");
         System.out.println(respone.toJSONString());
 
         if(null != respone && 200 == respone.getIntValue("code")) {
@@ -206,7 +205,6 @@ public class ApiServiceImpl implements ApiService {
         System.out.println(respone.toJSONString());
         if(null != respone && 200 == respone.getIntValue("code")) {
             JSONObject jsonObject = respone.getJSONObject("data");
-
             result.put("total", jsonObject.getLong("totalElements"));
             result.put("pageNum", pageNum);
             result.put("list", jsonObject.getJSONArray("content"));

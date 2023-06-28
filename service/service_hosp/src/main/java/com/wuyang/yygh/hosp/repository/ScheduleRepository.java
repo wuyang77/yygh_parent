@@ -10,6 +10,12 @@ import java.util.List;
 @Repository
 public interface ScheduleRepository extends MongoRepository<Schedule,String> {
 
+    /**
+     * 根据医院编号和医院排班id查询医院排班
+     * @param hoscode
+     * @param hosScheduleId
+     * @return
+     */
     Schedule findScheduleByHoscodeAndHosScheduleId(String hoscode, String hosScheduleId);
 
     List<Schedule> findScheduleByHoscodeAndDepcodeAndWorkDate(String hoscode, String depcode, Date toDate);

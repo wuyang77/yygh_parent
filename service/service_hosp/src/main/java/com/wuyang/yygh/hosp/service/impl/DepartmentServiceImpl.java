@@ -26,7 +26,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department = JSONObject.parseObject(string, Department.class);//将所有的字符串一一对应解析到Hospital中
 
         //1.查询MongoDB中是否有科室信息？
-        Department targetDepartment = departmentRepositroy.findByHoscodeAndDepcode(department.getHoscode(),department.getDepcode());
+        Department targetDepartment = departmentRepositroy.findDepartmentByHoscodeAndDepcode(department.getHoscode(),department.getDepcode());
         if (targetDepartment == null){//2.无，做添加操作
             department.setCreateTime(new Date());
             department.setUpdateTime(new Date());
@@ -58,8 +58,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void removeDepartment(String hoscode, String depcode) {
-        Department department = departmentRepositroy.findByHoscodeAndDepcode(hoscode, depcode);
-        if (department != null) {
+        Department department = departmentRepositroy.findDepartmentByHoscodeAndDepcode(hoscode,depcode);//先根据医院编号和科室编号查得所在科室
+        if (department != null) {//如果科室不为空，则删除科室，就这么简单
             departmentRepositroy.deleteById(department.getId());
         }
     }
