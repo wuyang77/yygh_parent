@@ -29,7 +29,7 @@ export default {
     updateById(patient) {
         return request({
             url: `${api_name}/auth/update`,
-            method: 'post',
+            method: 'put',
             data: patient
         })
     },

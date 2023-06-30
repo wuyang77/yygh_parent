@@ -2,11 +2,11 @@
     <div class="header-container">
         <div class="wrapper">
         <!-- logo -->
-            <div class="left-wrapper v-link selected">        
+            <div class="left-wrapper v-link selected">
                 <a href=http://localhost:3000>
                   <img style="width: 50px" width="50" height="50" src="~assets/images/logo99.jpg">
                 </a>
-                <span class="text">医院HIS集成接口开发 预约挂号统一平台</span>
+                <span class="text">北京市114预约挂号统一平台</span>
             </div>
         <!-- 右侧 -->
         <div class="right-wrapper">
@@ -51,7 +51,7 @@
               <span class="third-text"> 第三方账号登录 </span></div>
           </div>
         </div>
-    
+
         <!-- 手机登录 #end -->
 
         <!-- 微信登录 #start -->
@@ -145,7 +145,7 @@ export default {
     loginEvent.$on('loginDialogEvent', function () {
       document.getElementById("loginDialog").click();
     })
-    // 触发事件，显示登录层：loginEvent.$emit('loginDialogEvent')
+    // loginEvent.$emit('loginDialogEvent')//触发事件，显示登录层：
     //初始化微信js
     const script = document.createElement('script')
     script.type = 'text/javascript'
@@ -173,7 +173,6 @@ export default {
       // 判断是获取验证码还是登录
       if(this.dialogAtrr.loginBtn == '获取验证码') {
         this.userInfo.phone = this.dialogAtrr.inputValue
-
         // 获取验证码
         this.getCodeFun()
       } else {
@@ -185,7 +184,6 @@ export default {
     // 绑定登录，点击显示登录层
     showLogin() {
       this.dialogUserFormVisible = true
-
       // 初始化登录层相关参数
       this.dialogAtrr = { ...defaultDialogAtrr }//对象的解构，把某个对象的属性copy给另一个对象
     },
@@ -256,7 +254,6 @@ export default {
         clearInterval(this.clearSmsTime);
       }
       this.dialogAtrr.second = 60;
-
       this.dialogAtrr.labelTips = '验证码已发送至' + this.userInfo.phone
       this.clearSmsTime = setInterval(() => {
         --this.dialogAtrr.second;

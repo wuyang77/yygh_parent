@@ -31,6 +31,12 @@
             <artifactId>rabbit_util</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!--Spring Boot 测试-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

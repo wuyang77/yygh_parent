@@ -1,9 +1,7 @@
 package com.wuyang.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.wuyang.yygh.cmn.client.DictFeignClient;
 import com.wuyang.yygh.common.exception.YyghException;
 import com.wuyang.yygh.hosp.repository.ScheduleRepository;
 import com.wuyang.yygh.hosp.service.DepartmentService;
@@ -16,14 +14,15 @@ import com.wuyang.yygh.model.hosp.Schedule;
 import com.wuyang.yygh.vo.hosp.BookingScheduleRuleVo;
 import com.wuyang.yygh.vo.hosp.ScheduleOrderVo;
 import com.wuyang.yygh.vo.hosp.ScheduleQueryVo;
-import com.wuyang.yygh.vo.order.OrderMqVo;
-import jdk.nashorn.internal.runtime.ListAdapter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -47,12 +46,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     private MongoTemplate mongoTemplate;
 
 
+
     @Override
     public void saveSchedule(Map<String, Object> stringObjectMap) {
         //paramMap 转换department对象
         String paramMapString = JSONObject.toJSONString(stringObjectMap);
         Schedule schedule = JSONObject.parseObject(paramMapString, Schedule.class);
-        //根据医院编号 和 排班编号查询
+        //根据医院编号和排班编号查询
         Schedule scheduleExist = scheduleRepository.findScheduleByHoscodeAndHosScheduleId(schedule.getHoscode(),schedule.getHosScheduleId());
         //判断
         if(scheduleExist!=null) {
@@ -130,14 +130,22 @@ public class ScheduleServiceImpl implements ScheduleService {
             String dayOfWeek = this.getDayOfWeek(new DateTime(workDate));
             bookingScheduleRuleVo.setDayOfWeek(dayOfWeek);
         }
-
+        /**
+         * result: {
+         *    "bookingScheduleRuleList",
+         *    "total",
+         *    baseMap: {
+         *        hosname
+         *    }
+         * }
+         */
         //设置最终数据，进行返回
         Map<String, Object> result = new HashMap<>();
         result.put("bookingScheduleRuleList",bookingScheduleRuleVoList);
         result.put("total",total);
 
         //获取医院名称
-        Hospital hospital = hospitalService.findHospitalByHoscode(hoscode);
+        Hospital hospital = hospitalService.findHospitalByHoscode(hoscode);//这里还是去查mongodb内的数据
         //其他基础数据
         Map<String, String> baseMap = new HashMap<>();
         baseMap.put("hosname",hospital.getHosname());
@@ -154,18 +162,16 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     //获取排班可预约日期数据
     @Override
-    public Map<String, Object> getBookingScheduleRule(Integer page, Integer limit, String hoscode, String depcode) {
+    public Map<String, Object> getBookingScheduleRule(Integer page,Integer limit,String hoscode,String depcode) {
         Map<String, Object> result = new HashMap<>();
-
         //获取预约规则
-        Hospital hospital = hospitalService.findHospitalByHoscode(hoscode);
+        Hospital hospital = hospitalService.findHospitalByHoscode(hoscode);//实际上接口里面的方法调用了MongoDB的方法，要点进去看，用的hospitalRepository
         if(null == hospital) {
             throw new YyghException();
         }
         BookingRule bookingRule = hospital.getBookingRule();
-
         //获取可预约日期分页数据
-        IPage iPage = this.getListDate(page, limit, bookingRule);
+        IPage iPage = this.getListDate(page,limit,bookingRule);
         //当前页可预约日期
         List<Date> dateList = iPage.getRecords();
         //获取可预约日期科室剩余预约数
@@ -174,24 +180,22 @@ public class ScheduleServiceImpl implements ScheduleService {
                 Aggregation.match(criteria),
                 Aggregation.group("workDate")//分组字段
                         .first("workDate").as("workDate")
-                        .count().as("docCount")
+                        .count().as("docCount")//docCount就诊医生人数
                         .sum("availableNumber").as("availableNumber")
                         .sum("reservedNumber").as("reservedNumber")
         );
-        AggregationResults<BookingScheduleRuleVo> aggregationResults = mongoTemplate.aggregate(agg, Schedule.class, BookingScheduleRuleVo.class);
+        AggregationResults<BookingScheduleRuleVo> aggregationResults = mongoTemplate.aggregate(agg,Schedule.class, BookingScheduleRuleVo.class);
         List<BookingScheduleRuleVo> scheduleVoList = aggregationResults.getMappedResults();
         //获取科室剩余预约数
-
         //合并数据 将统计数据ScheduleVo根据“安排日期”合并到BookingRuleVo
-        Map<Date, BookingScheduleRuleVo> scheduleVoMap = new HashMap<>();
+        Map<Date,BookingScheduleRuleVo> scheduleVoMap = new HashMap<>();
         if(!CollectionUtils.isEmpty(scheduleVoList)) {
             scheduleVoMap = scheduleVoList.stream().collect(Collectors.toMap(BookingScheduleRuleVo::getWorkDate, BookingScheduleRuleVo -> BookingScheduleRuleVo));
         }
         //获取可预约排班规则
-        List<BookingScheduleRuleVo> bookingScheduleRuleVoList = new ArrayList<>();
-        for(int i=0, len=dateList.size(); i<len; i++) {
+        List<BookingScheduleRuleVo > bookingScheduleRuleVoList = new ArrayList<>();
+        for(int i=0,len=dateList.size();i<len; i++) {
             Date date = dateList.get(i);
-
             BookingScheduleRuleVo bookingScheduleRuleVo = scheduleVoMap.get(date);
             if(null == bookingScheduleRuleVo) { // 说明当天没有排班医生
                 bookingScheduleRuleVo = new BookingScheduleRuleVo();
@@ -222,7 +226,31 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             bookingScheduleRuleVoList.add(bookingScheduleRuleVo);
         }
-
+        /**
+         *
+         *集合封装示例
+         * result: {
+         *     total,//当前满足条件总行数
+         *     bookingScheduleRuleVoList: {
+         *          bookingScheduleRuleVo:{
+         *              Date workDate,可预约日期
+         *              workDateMd,可预约日期,方便页面使用
+         *              dayOfWeek,//周几
+         *              docCount,//就诊医生人数
+         *              reservedNumber,//科室可预约数
+         *              availableNumber,//科室剩余预约数
+         *              status,//状态 0：正常 1：即将放号 -1：当天已停止挂号
+         *     },
+         *     baseMap: {
+         *         hosname,医院编号
+         *         bigname,大科室名称
+         *         depname,小科室名称
+         *         workDateString,科室名称
+         *         releaseTime,放号时间
+         *         stopTime停挂时间
+         *     }
+         * }
+         */
         //可预约日期规则数据
         result.put("bookingScheduleList", bookingScheduleRuleVoList);
         result.put("total", iPage.getTotal());
@@ -231,7 +259,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         //医院名称
         baseMap.put("hosname", hospitalService.findHospitalByHoscode(hoscode).getHosname());
         //科室
-        Department department =departmentService.getDepartment(hoscode, depcode);
+        Department department =departmentService.getDepartment(hoscode,depcode);
         //大科室名称
         baseMap.put("bigname", department.getBigname());
         //科室名称
@@ -271,6 +299,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         if(null == bookingRule) {
             throw new YyghException();
         }
+        //亿元订单对象的封装
         //设置医院编号和名称
         scheduleOrderVo.setHoscode(scheduleInfo.getHoscode());
         scheduleOrderVo.setHosname((String) scheduleInfo.getParam().get("hosname"));
@@ -306,30 +335,34 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void update(OrderMqVo orderMqVo) {
+    public void update(Schedule schedule) {
         //下单成功更新预约数
-        Schedule schedule = null;
-        if (orderMqVo.getAvailableNumber() != null) {
-            schedule = scheduleRepository.findById(orderMqVo.getScheduleId()).get();
-            schedule.setReservedNumber(orderMqVo.getReservedNumber());
-            schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
-            scheduleRepository.save(schedule);
-        }else {
-           schedule = scheduleRepository.findScheduleByHosScheduleId(orderMqVo.getScheduleId());
-           schedule.setAvailableNumber(schedule.getAvailableNumber()+1);
-            scheduleRepository.save(schedule);
-        }
-
+//        Schedule schedule = null;
+//        if (orderMqVo.getAvailableNumber() != null) {//预约成功
+//            schedule = scheduleRepository.findById(orderMqVo.getScheduleId()).get();
+//            schedule.setReservedNumber(orderMqVo.getReservedNumber());
+//            schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
+//            scheduleRepository.save(schedule);
+//        }else {//没有预约成功
+//           schedule = scheduleRepository.findScheduleByHosScheduleId(orderMqVo.getScheduleId());
+//           schedule.setAvailableNumber(schedule.getAvailableNumber()+1);
+//            scheduleRepository.save(schedule);
+//        }
+        schedule.setUpdateTime(new Date());
+        //主键一致就是更新
+        scheduleRepository.save(schedule);
     }
 
 
     private void packageSchedule(Schedule schedule){
         Hospital hospital = hospitalService.findHospitalByHoscode(schedule.getHoscode());
         Department department = departmentService.getDepartment(hospital.getHoscode(), schedule.getDepcode());
+
         schedule.getParam().put("hosname",hospital.getHosname());
         schedule.getParam().put("depname",department.getDepname());
+
         Date workDate = schedule.getWorkDate();
-        schedule.getParam().put("dayOfWeek",this.getDayOfWeek(new DateTime(workDate)));
+        schedule.getParam().put("dayOfWeek",this.getDayOfWeek(new DateTime(workDate)));//将工作日期转换成星期一到星期日
     }
 
 //    {

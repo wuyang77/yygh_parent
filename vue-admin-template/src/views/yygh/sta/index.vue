@@ -28,7 +28,7 @@
     </el-form>
 
     <div class="chart-container">
-        <div id="chart" ref="chart" 
+        <div id="chart" ref="chart"
             class="chart" style="height:500px;width:100%"/>
     </div>
     </div>
@@ -85,7 +85,7 @@ export default {
                 },
                 series: [{
                     name: this.title,
-                    type: 'line',
+                    type: 'bar',
                     data: this.yData
                 }]
             }

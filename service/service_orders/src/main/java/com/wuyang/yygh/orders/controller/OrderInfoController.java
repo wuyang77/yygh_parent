@@ -13,7 +13,6 @@ import com.wuyang.yygh.model.order.OrderInfo;
 import com.wuyang.yygh.orders.service.OrderInfoService;
 import com.wuyang.yygh.orders.utils.AuthContextHolder;
 import com.wuyang.yygh.vo.order.OrderCountQueryVo;
-import com.wuyang.yygh.vo.order.OrderCountVo;
 import com.wuyang.yygh.vo.order.OrderQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +43,6 @@ public class OrderInfoController {
 
     @Autowired
     private OrderInfoService orderInfoService;
-
 
     //构造方法
     public OrderInfoController(){
@@ -98,14 +96,14 @@ public class OrderInfoController {
     }
     //根据订单id查询订单详情
     @GetMapping("/auth/getOrders/{orderId}")
-    public R getOrders(@PathVariable Long orderId) {
+    public R getOrderDetail(@PathVariable Long orderId) {
         OrderInfo orderInfo = orderInfoService.getOrderInfo(orderId);
         return R.ok().data("orderInfo",orderInfo);
     }
 
     @ApiOperation(value = "创建订单")
     @PostMapping("/auth/submitOrder/{scheduleId}/{patientId}")
-    public R submitOrder(
+    public R createOrder(
             @ApiParam(name = "scheduleId",value = "排班id",required = true)
             @PathVariable(value = "scheduleId")String scheduleId,
             @ApiParam(name = "patientId",value = "就诊人id",required = true)

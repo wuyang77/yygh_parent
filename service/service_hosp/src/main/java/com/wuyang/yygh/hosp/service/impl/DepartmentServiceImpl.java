@@ -72,7 +72,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         //根据医院编号，查询医院所有科室信息
         Department departmentQuery = new Department();
         departmentQuery.setHoscode(hoscode);
-        Example example = Example.of(departmentQuery);
+        Example example = Example.of(departmentQuery);//按示例（按例子）查询
         //所有科室列表 departmentList
         List<Department> departmentList = departmentRepositroy.findAll(example);
 
@@ -82,7 +82,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         for(Map.Entry<String,List<Department>> entry : deparmentMap.entrySet()) {
             //大科室编号
             String bigcode = entry.getKey();
-            //大科室编号对应的全局数据
+            //大科室编号对应的全局数据（小科室的集合）
             List<Department> deparment1List = entry.getValue();
             //封装大科室
             DepartmentVo departmentVo1 = new DepartmentVo();
@@ -103,6 +103,16 @@ public class DepartmentServiceImpl implements DepartmentService {
             //放到最终result里面
             result.add(departmentVo1);
         }
+//        封装的集合大概得样子
+//        departmentMapVo:{
+//            deparmentMapVo1:{
+//                children:{
+//                    deparmentVo2:{
+//                        ...
+//                    }
+//                }
+//            }
+//        }
         //返回
         return result;
     }

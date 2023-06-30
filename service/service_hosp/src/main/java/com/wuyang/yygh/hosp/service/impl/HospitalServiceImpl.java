@@ -2,18 +2,16 @@ package com.wuyang.yygh.hosp.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.wuyang.yygh.cmn.client.DictFeignClient;
-import com.wuyang.yygh.common.result.R;
 import com.wuyang.yygh.enums.DictEnum;
 import com.wuyang.yygh.hosp.repository.HospitalRepository;
 import com.wuyang.yygh.hosp.service.HospitalService;
-import com.wuyang.yygh.model.cmn.Dict;
-import com.wuyang.yygh.model.hosp.Department;
 import com.wuyang.yygh.model.hosp.Hospital;
 import com.wuyang.yygh.vo.hosp.HospitalQueryVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -58,10 +56,10 @@ public class HospitalServiceImpl implements HospitalService {
        return hospitalRepository.findHospByHoscode(hoscode);
     }
 
-    //做待查询条件的分页
+    //做带条件的分页查询
     @Override
-    public Page<Hospital> selectPage(Integer page, Integer limit, HospitalQueryVo hospitalQueryVo) {
-        PageRequest pageRequest = PageRequest.of(page-1,limit, Sort.by(Sort.Direction.ASC,"createTime"));
+    public Page<Hospital> selectPage(Integer page,Integer limit,HospitalQueryVo hospitalQueryVo) {
+        PageRequest pageRequest = PageRequest.of(page-1,limit, Sort.by(Sort.Direction.ASC,"createTime"));//根据创建时间升序排列
         Hospital hospital = new Hospital();
         BeanUtils.copyProperties(hospitalQueryVo,hospital);
 
@@ -72,8 +70,8 @@ public class HospitalServiceImpl implements HospitalService {
         Example example = Example.of(hospital,matcher);
         Page<Hospital> all = hospitalRepository.findAll(example,pageRequest);
 
-        all.getContent().stream().forEach(item->{
-            this.packHospital(item);
+        all.getContent().stream().forEach(item -> {
+            this.packHospital(item);//远程调用字典模块查询医院等级和全地址
         });
         return all;
     }
@@ -81,17 +79,17 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     public void updateStatus(String id, Integer status) {
         if(status.intValue() == 0 || status.intValue() == 1) {
-            Hospital hospital = hospitalRepository.findById(id).get();
+            Hospital hospital = hospitalRepository.findById(id).get();//排班的状态status是存储在MongoDB中，不是MySQL
             hospital.setStatus(status);
             hospital.setUpdateTime(new Date());
-            hospitalRepository.save(hospital);
+            hospitalRepository.save(hospital);//自动判断添加或者更新，这个MongoDB内置的方法
         }
     }
 
     @Override
     public Map<String, Object> getHospitalDetailById(String id) {
         Hospital hospital = hospitalRepository.findById(id).get();
-        hospital = this.packHospital(hospital);
+        hospital = this.packHospital(hospital);//内部触发OpenFeign远程调用
         Map<String,Object> map = new HashMap<>();
         //医院基本信息（包含医院等级）
         map.put("hospital",hospital);
@@ -118,14 +116,14 @@ public class HospitalServiceImpl implements HospitalService {
 
 
     private Hospital packHospital(Hospital item) {
+        //这里是医院模块调取字典模块，需要采用远程调用Feign
+        String hostype = dictFeignClient.getName(DictEnum.HOSTYPE.getDictCode(), item.getHostype());//查询医院等级要用编号和等级value一起查
+        String provinceCode = dictFeignClient.getName(item.getProvinceCode());//省份
+        String cityCode = dictFeignClient.getName(item.getCityCode());//市
+        String districtCode= dictFeignClient.getName(item.getDistrictCode());//区
 
-        String hospitalLevel = dictFeignClient.getName(DictEnum.HOSTYPE.getDictCode(), item.getHostype());
-        String provinceName = dictFeignClient.getName(item.getProvinceCode());
-        String cityName = dictFeignClient.getName(item.getCityCode());
-        String districtName = dictFeignClient.getName(item.getDistrictCode());
-
-        item.getParam().put("hostypeString",hospitalLevel );
-        item.getParam().put("fullAddress", provinceName +cityName +districtName +item.getAddress());
+        item.getParam().put("hostypeString",hostype);//医院等级
+        item.getParam().put("fullAddress", provinceCode+cityCode+districtCode+item.getAddress());
         return item;
     }
 

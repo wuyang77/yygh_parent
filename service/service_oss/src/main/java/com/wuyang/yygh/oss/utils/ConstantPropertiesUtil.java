@@ -3,8 +3,6 @@ package com.wuyang.yygh.oss.utils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 //@PropertySource("classpath:application.properties")
-@ConfigurationProperties(prefix = "aliyun.oss.file")
+@ConfigurationProperties(prefix = "aliyun.oss.file")//该成员变量的属性前缀
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

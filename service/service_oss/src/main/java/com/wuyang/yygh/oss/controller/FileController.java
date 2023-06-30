@@ -1,11 +1,10 @@
-package com.wuyang.yygh.oss.service.impl.controller;
+package com.wuyang.yygh.oss.controller;
 
 import com.wuyang.yygh.common.result.R;
 import com.wuyang.yygh.oss.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

@@ -4,11 +4,8 @@ import com.wuyang.yygh.common.result.R;
 import com.wuyang.yygh.hosp.service.ScheduleService;
 import com.wuyang.yygh.model.hosp.Schedule;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +21,8 @@ public class ScheduleController {
     @Autowired
     private ScheduleService scheduleService;
 
-    //根据医院编号和科室编号 ，查询排班规则数据
-    @ApiOperation(value ="查询排班规则")
+    //根据page,limit,医院编号，科室编号，获取排班可预约数据
+    @ApiOperation(value ="获取排班可预约数据")
     @GetMapping("/getScheduleRule/{page}/{limit}/{hoscode}/{depcode}")
     public R getScheduleRule(@PathVariable(value = "page")Integer page,
                              @PathVariable(value = "limit")Integer limit,

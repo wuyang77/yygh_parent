@@ -56,7 +56,6 @@
                     <router-link :to="'/user/userInfo/show/'+scope.row.id">
                         <el-button type="primary" size="mini">查看</el-button>
                     </router-link>
-
                     <el-button type="primary" size="mini" @click="approval(scope.row.id, 2)">通过</el-button>
                     <el-button type="danger" size="mini" @click="approval(scope.row.id, -1)">不通过</el-button>
                 </template>

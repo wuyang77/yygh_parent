@@ -177,15 +177,15 @@ export default {
 
       this.getBookingScheduleRule()
     },
-
+    //查询可预约的排班信息
     getBookingScheduleRule() {
-      hospitalApi.getBookingScheduleRule(this.page, this.limit, this.hoscode, this.depcode).then(response => {
+      hospitalApi.getBookingScheduleRule(this.page,this.limit,this.hoscode,this.depcode).then(response => {
+
         this.bookingScheduleList = response.data.bookingScheduleList
         this.total = response.data.total
         this.baseMap = response.data.baseMap
 
         this.dealClass()
-
         // 分页后workDate=null，默认选中第一个
         if (this.workDate == null) {
           this.workDate = this.bookingScheduleList[0].workDate
@@ -224,7 +224,6 @@ export default {
         this.dealClass();
       } else {
         this.tabShow = true
-
         this.getBookingScheduleRule()
       }
     },

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 //@PropertySource("classpath:application.properties")
 public class ConstantPropertiesUtil implements InitializingBean {
 
-	@Value("${wx.open.app_id}")
+	@Value("${wx.open.app_id}")//在配置文件中直接获取值
 	private String appId;
 
 	@Value("${wx.open.app_secret}")

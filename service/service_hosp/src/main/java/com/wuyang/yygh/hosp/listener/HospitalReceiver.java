@@ -30,9 +30,14 @@ public class HospitalReceiver {
     })
     public void consume(OrderMqVo orderMqVo, Message message, Channel channel){
         //下单成功更新预约数
-        scheduleService.update(orderMqVo);
+        Schedule schedule = scheduleService.findAllByScheduleId(orderMqVo.getScheduleId());
+        schedule.setReservedNumber(orderMqVo.getReservedNumber());
+        schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
+        scheduleService.update(schedule);
         //发送短信
         MsmVo msmVo = orderMqVo.getMsmVo();
-        rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_MSM, MqConst.ROUTING_MSM_ITEM, msmVo);
+        if (null != msmVo) {
+            rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_MSM, MqConst.ROUTING_MSM_ITEM, msmVo);
+        }
     }
 }

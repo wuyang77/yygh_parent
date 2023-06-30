@@ -10,7 +10,7 @@ public interface WeixinService {
     Map createNative(Long orderId) throws Exception;
 
     /**
-     * 根据订单号去微信第三方查询支付状态
+     * 本地查询支付状态
      */
     Map<String, String> queryPayStatus(Long orderId, String paymentType);
     /***

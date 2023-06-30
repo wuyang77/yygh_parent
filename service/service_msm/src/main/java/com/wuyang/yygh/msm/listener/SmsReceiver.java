@@ -23,6 +23,6 @@ public class SmsReceiver {
             key = {MqConst.ROUTING_MSM_ITEM}
     ))
     public void send(MsmVo msmVo, Message message, Channel channel) {
-        msmService.send(msmVo);
+        msmService.sendNotice(msmVo);
     }
 }

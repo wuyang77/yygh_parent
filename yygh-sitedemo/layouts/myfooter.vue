@@ -1,7 +1,7 @@
 <template>
   <div class="footer-container">
     <div class="wrapper">
-      <div><span class="record">京ICP备atguigu号</span><span
+      <div><span class="record">京ICP备医院号</span><span
         class="phone">www.wuyang6666.com</span></div>
       <div class="right"><span
         class="v-link clickable"> 联系我们 </span><span

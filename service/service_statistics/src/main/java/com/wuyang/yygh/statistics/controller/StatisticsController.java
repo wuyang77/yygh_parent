@@ -24,7 +24,7 @@ public class StatisticsController {
     @ApiOperation(value = "获取订单统计数据")
     @GetMapping("/getCountMap")
     public R getCountMap(@ApiParam(name = "orderCountQueryVo", value = "查询对象", required = false) OrderCountQueryVo orderCountQueryVo) {
-        Map<String, Object> map = orderFeignClient.getCountMap(orderCountQueryVo);
+        Map<String, Object> map = orderFeignClient.getCountMap(orderCountQueryVo);//远程调用order模块
         return R.ok().data(map);
     }
 }

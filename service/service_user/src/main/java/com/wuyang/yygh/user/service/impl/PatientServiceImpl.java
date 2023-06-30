@@ -28,7 +28,6 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
 
     @Override
     public Patient getPatientInfo(String id) {
-
         Patient patient = baseMapper.selectById(id);
         patient = this.packPatient(patient);
         return patient;
@@ -53,6 +52,7 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
         String cityString = dictFeignClient.getName(patient.getCityCode());
         //区
         String districtString = dictFeignClient.getName(patient.getDistrictCode());
+
         patient.getParam().put("certificatesTypeString", certificatesTypeString);
         // patient.getParam().put("contactsCertificatesTypeString", contactsCertificatesTypeString);
         patient.getParam().put("provinceString", provinceString);

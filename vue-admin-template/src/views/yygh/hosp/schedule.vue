@@ -111,11 +111,10 @@ export default {
             hospApi.getDeptByHoscode(this.hoscode)
                 .then(response => {
                     this.data = response.data.list
-                    // 默认选中第一个
+                    默认选中第一个
                     if (this.data.length > 0) {
                         this.depcode = this.data[0].children[0].depcode
                         this.depname = this.data[0].children[0].depname
-
                         this.getPage()
                     }
             })
@@ -139,7 +138,7 @@ export default {
 
                 // 分页后workDate=null，默认选中第一个
                 if (this.workDate == null) {
-                
+
                     this.workDate = this.bookingScheduleList[0].workDate
                 }
                 //调用查询排班详情

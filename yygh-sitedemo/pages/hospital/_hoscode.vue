@@ -4,7 +4,7 @@
         <!--左侧导航 #start -->
         <div class="nav left-nav">
             <div class="nav-item selected">
-                <span class="v-link selected dark" 
+                <span class="v-link selected dark"
                     :onclick="'javascript:window.location=\'/hospital/'+hospital.hoscode+'\''">预约挂号 </span>
             </div>
                 <div class="nav-item ">
@@ -133,8 +133,6 @@ export default {
             loginEvent.$emit('loginDialogEvent')
             return
         }
-
-    
         //判断认证
         userInfoApi.getUserInfo().then(response => {
             let authStatus = response.data.userInfo.authStatus

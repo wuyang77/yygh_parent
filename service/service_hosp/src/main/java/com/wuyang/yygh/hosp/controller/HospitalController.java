@@ -27,8 +27,8 @@ public class HospitalController {
     @GetMapping("/detail/{id}")
     public R show(@ApiParam(name = "id", value = "医院id", required = true)
                   @PathVariable String id) {
-        Map<String,Object> map = hospitalService.getHospitalDetailById(id);
-        return R.ok().data("hospital",map);
+        Map<String,Object> hospital = hospitalService.getHospitalDetailById(id);
+        return R.ok().data("hospital",hospital);
     }
 
     //更新医院上线和下线状态

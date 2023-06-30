@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.wxpay.sdk.WXPayConstants;
 import com.github.wxpay.sdk.WXPayUtil;
 import com.wuyang.yygh.common.exception.YyghException;
+import com.wuyang.yygh.enums.PaymentTypeEnum;
 import com.wuyang.yygh.enums.RefundStatusEnum;
 import com.wuyang.yygh.model.order.OrderInfo;
 import com.wuyang.yygh.model.order.PaymentInfo;
@@ -17,12 +18,11 @@ import com.wuyang.yygh.orders.utils.ConstantPropertiesUtils;
 import com.wuyang.yygh.orders.utils.HttpClient;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class WeiXinServiceImpl implements WeixinService {
@@ -40,7 +40,7 @@ public class WeiXinServiceImpl implements WeixinService {
             //1.根据订单id获取订单信息
             OrderInfo orderinfo = orderInfoService.getOrderInfo(orderId);
             //2.保存支付交易记录
-            paymentService.savePaymentInfo(orderinfo,2);
+            paymentService.savePaymentInfo(orderinfo, PaymentTypeEnum.WEIXIN.getStatus());
             //3.先准备参数，xml格式，调用微信服务接口进行支付
             //1、设置参数
             Map paramMap = new HashMap();
@@ -50,6 +50,7 @@ public class WeiXinServiceImpl implements WeixinService {
             Date reserveDate = orderinfo.getReserveDate();//获取订单的安排日期
             String reserveDateString = new DateTime(reserveDate).toString("yyyy/MM/dd");
             String body = reserveDateString + "就诊"+ orderinfo.getDepname();//安排日期+“就诊”+科室名称
+
             paramMap.put("body", body);
             paramMap.put("out_trade_no", orderinfo.getOutTradeNo());//商户订单号
             //paramMap.put("total_fee", order.getAmount().multiply(new BigDecimal("100")).longValue()+"");
@@ -110,10 +111,11 @@ public class WeiXinServiceImpl implements WeixinService {
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("order_id",orderId);
             PaymentInfo paymentInfo = paymentService.getOne(queryWrapper);
-            if (paymentInfo == null){
-                throw new YyghException(20001,"没有该订单的支付记录");
+            if (null == paymentInfo){
+                throw new YyghException(66666,"没有查到该订单的支付记录");
             }
             RefundInfo refundInfo = refundInfoService.saveRefundInfo(paymentInfo);
+
             Map<String,String> paramMap = new HashMap<>(8);
             paramMap.put("appid",ConstantPropertiesUtils.APPID);//公众账号ID
             paramMap.put("mch_id",ConstantPropertiesUtils.PARTNER);//商户编号
@@ -145,6 +147,7 @@ public class WeiXinServiceImpl implements WeixinService {
                 refundInfoService.updateById(refundInfo);
                 return true;
             }
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
         }

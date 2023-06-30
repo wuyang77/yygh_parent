@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@Api(tags = "用户系统使用")
+@Api(tags = "本地医院系统接口")
 @RestController
 @RequestMapping("/api/hosp/hospital")
 public class HospitalApiController {
@@ -30,7 +30,7 @@ public class HospitalApiController {
     @Autowired
     private ScheduleService scheduleService;
 
-    @ApiOperation(value = "根据排班id获取预约下单数据")
+    @ApiOperation(value = "订单页面触发的，根据排班id获取预约下单数据")
     @GetMapping("inner/getScheduleOrderVo/{scheduleId}")
     public ScheduleOrderVo getScheduleOrderVo(
             @ApiParam(name = "scheduleId", value = "排班id", required = true)
@@ -38,7 +38,7 @@ public class HospitalApiController {
         return scheduleService.getScheduleOrderVo(scheduleId);
     }
 
-    @ApiOperation(value = "根据排版id获取排班详情")
+    @ApiOperation(value = "订单页面触发的，根据排排班id获取排班")
     @GetMapping("/getSchedule/{id}")
     public R getScheduleList(@PathVariable(value = "id") String scheduleId) {
         Schedule schedule = scheduleService.findAllByScheduleId(scheduleId);

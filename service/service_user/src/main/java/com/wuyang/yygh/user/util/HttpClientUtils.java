@@ -244,7 +244,6 @@ public class HttpClientUtils {
 				client = HttpClientUtils.client;
 				res = client.execute(get);
 			}
-
 			result = IOUtils.toString(res.getEntity().getContent(), charset);
 		} finally {
 			get.releaseConnection();

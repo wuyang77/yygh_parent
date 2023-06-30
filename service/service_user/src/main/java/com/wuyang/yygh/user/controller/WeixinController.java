@@ -1,24 +1,27 @@
 package com.wuyang.yygh.user.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.Gson;
 import com.wuyang.yygh.common.result.R;
 import com.wuyang.yygh.common.utils.JwtHelper;
 import com.wuyang.yygh.model.user.UserInfo;
 import com.wuyang.yygh.user.service.UserInfoService;
 import com.wuyang.yygh.user.util.ConstantPropertiesUtil;
 import com.wuyang.yygh.user.util.HttpClientUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+@Api(tags = "微信登录接口")
 @Controller
 @RequestMapping("/api/ucenter/wx")
 public class WeixinController {
@@ -26,14 +29,27 @@ public class WeixinController {
 
     @Autowired
     private UserInfoService userInfoService;
+    @ApiOperation(value = "获取微信登录参数")
+    @GetMapping("/getLoginParam")
+    @ResponseBody
+    public R genQrConnect() throws UnsupportedEncodingException {
+        String redirectUri = URLEncoder.encode(ConstantPropertiesUtil.WX_OPEN_REDIRECT_URL, "UTF-8");
+        Map<String, Object> map = new HashMap<>();
+        map.put("appid", ConstantPropertiesUtil.WX_OPEN_APP_ID);
+        map.put("redirectUri", redirectUri);
+        map.put("response_type","code");
+        map.put("scope", "snsapi_login");
+        map.put("state", System.currentTimeMillis()+"");
+        return R.ok().data(map);
+    }
+    @ApiOperation(value = "微信回调")
     @RequestMapping("/callback")
     public String callback(String code,String state){
-        System.out.println(code+"==="+state);//后端测试收否返回了code和state
+        System.out.println(code+"==="+state);//控制台查看是否返回了code和state
 
         //String url = https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code;
         //HttpClientUtils.get("url");传统的方式写死了，注释掉，推荐下面的方法
         //通过code获取access_token(通过code加上appid和appsecret换取access_token)
-
         StringBuffer baseAccessTokenUrl = new StringBuffer()
                 .append("https://api.weixin.qq.com/sns/oauth2/access_token")
                 .append("?appid=%s")
@@ -44,11 +60,9 @@ public class WeixinController {
                 ConstantPropertiesUtil.WX_OPEN_APP_ID,
                 ConstantPropertiesUtil.WX_OPEN_APP_SECRET,
                 code);
-
         try {
             String jsonStr = HttpClientUtils.get(accessTokenUrl);
-            System.out.println(jsonStr);//后端查看HttpClient返回的json字符串
-
+            System.out.println(jsonStr);//控制台查看HttpClient返回的json字符串
             JSONObject jsonObject = JSONObject.parseObject(jsonStr);
             String accessToken = jsonObject.getString("access_token");
             String openid = jsonObject.getString("openid");
@@ -63,7 +77,7 @@ public class WeixinController {
 //            System.out.println("accessToken1 = " + accessToken1);
 //            System.out.println("openid1 = " + openid1);
 
-            UserInfo userInfo = userInfoService.selectByOpenId(openid);
+            UserInfo userInfo = userInfoService.selectUserInfoByOpenId(openid);
             if (userInfo == null) {//说明微信是首次登录，需要注册
                  userInfo = new UserInfo();
                  //根据access_token和openid访问微信服务器去调取用户的信息
@@ -105,18 +119,5 @@ public class WeixinController {
         return null;
     }
 
-    /**
-     * 获取微信登录参数
-     */
-    @GetMapping("/getLoginParam")
-    @ResponseBody
-    public R genQrConnect() throws UnsupportedEncodingException {
-        String redirectUri = URLEncoder.encode(ConstantPropertiesUtil.WX_OPEN_REDIRECT_URL, "UTF-8");
-        Map<String, Object> map = new HashMap<>();
-        map.put("appid", ConstantPropertiesUtil.WX_OPEN_APP_ID);
-        map.put("redirectUri", redirectUri);
-        map.put("scope", "snsapi_login");
-        map.put("state", System.currentTimeMillis()+"");//System.currentTimeMillis()+""
-        return R.ok().data(map);
-    }
+
 }

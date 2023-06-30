@@ -28,10 +28,12 @@ public class FileServiceImpl implements FileService {
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如exampledir/exampleobject.txt。
         String objectName = UUID.randomUUID().toString().replaceAll("-","")+file.getOriginalFilename();//这里生成的UUID中间带有4个_需要替换掉
         String timeUrl = new DateTime().toString("yyyy/MM/dd");
+        System.out.println(timeUrl);
         objectName = timeUrl+"/"+objectName;
 
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+
         try {
             //创建输入流
             InputStream inputStream = file.getInputStream();

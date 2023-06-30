@@ -22,13 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import javax.jws.soap.SOAPBinding;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.wuyang.yygh.user.util.HttpClientUtils.get;
 
 /**
  * <p>
@@ -50,24 +47,20 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         //1.获取用户输入的手机号和验证码
         String phone = loginVo.getPhone();
         String code = loginVo.getCode();
-
         //对手机号和验证码进行非空校验
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)){
             throw new YyghException(20001,"数据为空");
         }
-
         //用户输入的验证码和服务器端redis中的验证码比较是否相等 TODO
         if (code.equals(redisTemplate.opsForValue().get(phone))) {
             throw new YyghException(20002,"验证码不正确");
         }
-
-        //4.判断是不是首次登录，如果是首次登录，完成自动注册功能
+        //判断是不是首次登录，如果是首次登录，完成自动注册功能
         String openid = loginVo.getOpenid();
-                if (StringUtils.isEmpty(openid)) {//手机登录
+        if (StringUtils.isEmpty(openid)) {//手机登录
             QueryWrapper<UserInfo> queryWrapper2 = new QueryWrapper<>();
             queryWrapper2.eq("phone",phone);
             UserInfo userInfo1 = baseMapper.selectOne(queryWrapper2);
-
             //如果返回对象为空，就是第一次登录，存到数据库登录数据
             if (userInfo1 == null) {//首次登录，完成自动注册功能
                 System.out.println("输出");
@@ -77,17 +70,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 userInfo1.setCreateTime(new Date());
                 baseMapper.insert(userInfo1);
             }
-            //判断用户是否可用
-            if(userInfo1.getStatus() == 0) {
-                throw new YyghException(20001,"用户已经禁用");
-            }
-
         }else {//微信绑定手机号
             //1 创建userInfo对象，用于存在最终所有数据
             QueryWrapper<UserInfo> phoneWrapper = new QueryWrapper<>();
             phoneWrapper.eq("phone",phone);
             UserInfo userInfo2 = baseMapper.selectOne(phoneWrapper);
-            UserInfo userInfoFinal =null;
+            UserInfo userInfoFinal = null;
             if (userInfo2 != null) {
                 //判断用户是否可用
                 if(userInfo2.getStatus() == 0) {
@@ -102,7 +90,6 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             }else {
                 userInfoFinal.setPhone(phone);
             }
-
             QueryWrapper<UserInfo> queryWrapper3 = new QueryWrapper<>();
             queryWrapper3.eq("openid",openid);
             UserInfo userInfo3 = baseMapper.selectOne(queryWrapper3);
@@ -125,13 +112,13 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         if (StringUtils.isEmpty(name)) {
             name = userInfo.getPhone();
         }
-        map.put("name",name);
+        map.put("name",name);//这个名字就是前端的登录名
         String token = JwtHelper.createToken(userInfo.getId(), name);
         map.put("token",token); //TODO
         return map;
     }
     @Override
-    public UserInfo selectByOpenId(String openid) {
+    public UserInfo selectUserInfoByOpenId(String openid) {
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("openid",openid);
         return baseMapper.selectOne(queryWrapper);
@@ -210,7 +197,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 //            userInfo.setStatus(status);
 //            baseMapper.updateById(userInfo);
 //        }
-        if(status.intValue() == 0 || status.intValue() == 1) {
+        if(status.intValue() == 0 || status.intValue() == 1) {//如果处在锁定0或者正常1
             UserInfo userInfo = baseMapper.selectById(userId);//高并发适用
             userInfo.setStatus(status);
             this.updateById(userInfo);

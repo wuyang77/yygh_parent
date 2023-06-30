@@ -7,7 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(value = "service-user")
 public interface PatientFeignClient {
-    //获取就诊人
+    /**
+     * 根据id获取就诊人信息
+     * @param id
+     * @return
+     */
     @GetMapping("/api/userinfo/patient/auth/get/{id}")
     R getPatient(@PathVariable("id") Long id);
 }

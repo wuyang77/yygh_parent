@@ -2,10 +2,8 @@ package com.wuyang.yygh.orders.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wuyang.yygh.common.result.R;
 import com.wuyang.yygh.enums.OrderStatusEnum;
 import com.wuyang.yygh.enums.PaymentStatusEnum;
-import com.wuyang.yygh.enums.PaymentTypeEnum;
 import com.wuyang.yygh.model.order.OrderInfo;
 import com.wuyang.yygh.model.order.PaymentInfo;
 import com.wuyang.yygh.orders.mapper.PaymentMapper;
@@ -23,8 +21,7 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, PaymentInfo> 
 
     @Autowired
     private OrderInfoService orderInfoService;
-    @Autowired
-    private PaymentService paymentService;
+
     /**
      * 保存交易记录
      * @param order

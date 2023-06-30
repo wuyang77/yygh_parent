@@ -4,7 +4,6 @@ import com.wuyang.yygh.model.hosp.Department;
 import com.wuyang.yygh.vo.hosp.DepartmentVo;
 import org.springframework.data.domain.Page;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +22,12 @@ public interface DepartmentService {
      * 根据医院编号和科室编号删除医院科室
      */
     void removeDepartment(String hoscode, String depcode);
+
+    /**
+     * 根据医院查询所有科室列表
+     * @param hoscode
+     * @return
+     */
     List<DepartmentVo> findDeptTree(String hoscode);
 
     //根据科室编号，和医院编号，查询科室名称

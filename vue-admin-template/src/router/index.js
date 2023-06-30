@@ -79,7 +79,7 @@ export const constantRoutes = [
         component: () => import('@/views/yygh/hospset/save'),
         meta: { title: '编辑医院设置', icon: 'tree' },
         hidden:true
-      },
+      }
     ]
   },
   {

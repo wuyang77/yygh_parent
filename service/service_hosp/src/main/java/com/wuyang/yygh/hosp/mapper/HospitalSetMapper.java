@@ -11,6 +11,7 @@ import com.wuyang.yygh.model.hosp.HospitalSet;
  * @author wuyang
  * @since 2023-02-26
  */
+
 public interface HospitalSetMapper extends BaseMapper<HospitalSet> {
 
 }

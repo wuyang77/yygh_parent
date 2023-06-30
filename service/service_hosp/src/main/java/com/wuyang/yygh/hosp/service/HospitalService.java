@@ -13,8 +13,20 @@ public interface HospitalService {
      */
     Hospital findHospitalByHoscode(String hoscode);
 
+    /**
+     * 做带条件的分页查询
+     * @param page
+     * @param limit
+     * @param hospitalQueryVo
+     * @return
+     */
     Page<Hospital> selectPage(Integer page, Integer limit, HospitalQueryVo hospitalQueryVo);
 
+    /**
+     * 根据id更加排班的状态，医院上线和下线状态
+     * @param id
+     * @param status
+     */
     void updateStatus(String id, Integer status);
 
     Map<String, Object> getHospitalDetailById(String id);

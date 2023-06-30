@@ -6,12 +6,13 @@ import com.wuyang.yygh.common.result.R;
 import com.wuyang.yygh.model.user.UserInfo;
 import com.wuyang.yygh.user.service.UserInfoService;
 import com.wuyang.yygh.vo.user.UserInfoQueryVo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
+@Api(tags = "后台用户管理接口")
 @RestController
 @RequestMapping("/admin/userinfo")
 public class UserController {
@@ -19,7 +20,7 @@ public class UserController {
     @Autowired
     private UserInfoService userInfoService;
 
-    //用户列表（条件查询带分页）
+    @ApiOperation("用户列表（条件查询带分页）")
     @GetMapping("/{page}/{limit}")
     private R getUserInfoPage(@PathVariable("page") Integer page,
                               @PathVariable("limit") Integer limit,
@@ -38,13 +39,13 @@ public class UserController {
         return R.ok();
     }
 
-    //用户详情
+
     @GetMapping("/show/{userId}")
     public R show(@PathVariable Long userId) {
         Map<String,Object> map = userInfoService.show(userId);
         return R.ok().data(map);
     }
-    //认证审批
+    @ApiOperation("认证审批")
     @GetMapping("/approval/{userId}/{authStatus}")
     public R approval(@PathVariable Long userId,@PathVariable Integer authStatus) {
         userInfoService.approval(userId,authStatus);

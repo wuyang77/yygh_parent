@@ -15,7 +15,7 @@ public class MsmController {
     public R sendCode(@PathVariable("phone")String phone) {
         boolean flag = msmService.sendCode(phone);
         if (flag) {
-            return R.ok();
+            return R.ok().message("验证码已发送");
         } else {
             return R.error().message("验证码发送失败");
         }

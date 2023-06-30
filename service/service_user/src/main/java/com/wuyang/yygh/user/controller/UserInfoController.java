@@ -39,14 +39,14 @@ public class UserInfoController {
     }
 
     //options:预请求
-    //获取用户id信息接口
+    @ApiOperation(value = "获取用户信息")
     @GetMapping("/auth/getUserInfo")
     public R getUserInfo(HttpServletRequest request) {
         Long userId = AuthContextHolder.getUserId(request);
         UserInfo userInfo = userInfoService.selectById(userId);
         return R.ok().data("userInfo",userInfo);
     }
-    //用户认证接口
+    @ApiOperation(value = "用户认证接口")
     @PostMapping("/auth/userAuth")
     public R userAuth(@RequestBody UserAuthVo userAuthVo, HttpServletRequest request) {
         //传递两个参数，第一个参数用户id，第二个参数认证数据vo对象

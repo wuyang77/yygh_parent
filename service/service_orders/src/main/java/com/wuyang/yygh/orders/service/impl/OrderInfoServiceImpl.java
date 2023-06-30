@@ -6,11 +6,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.wxpay.sdk.WXPayUtil;
 import com.wuyang.yygh.common.exception.YyghException;
 import com.wuyang.yygh.common.result.R;
 import com.wuyang.yygh.enums.OrderStatusEnum;
-import com.wuyang.yygh.enums.PaymentStatusEnum;
 import com.wuyang.yygh.hosp.client.HospitalFeignClient;
 import com.wuyang.yygh.model.order.OrderInfo;
 import com.wuyang.yygh.model.order.PaymentInfo;
@@ -19,8 +17,6 @@ import com.wuyang.yygh.orders.mapper.OrderInfoMapper;
 import com.wuyang.yygh.orders.service.OrderInfoService;
 import com.wuyang.yygh.orders.service.PaymentService;
 import com.wuyang.yygh.orders.service.WeixinService;
-import com.wuyang.yygh.orders.utils.ConstantPropertiesUtils;
-import com.wuyang.yygh.orders.utils.HttpClient;
 import com.wuyang.yygh.orders.utils.HttpRequestHelper;
 import com.wuyang.yygh.rabbit.MqConst;
 import com.wuyang.yygh.rabbit.RabbitService;
@@ -118,7 +114,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             //取号地址
             String fetchAddress = jsonObject1.getString("fetchAddress");
             //设置添加数据--排班数据
-            BeanUtils.copyProperties(scheduleOrderVo, orderInfo);
+            BeanUtils.copyProperties(scheduleOrderVo,orderInfo);
             //设置添加数据--就诊人数据
             //订单号
             String outTradeNo = System.currentTimeMillis() + ""+ new Random().nextInt(100);
@@ -147,6 +143,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             msmVo.setPhone(patient.getPhone());
             //短信提示
             msmVo.setPhone(orderInfo.getPatientPhone());
+            //安排日期
             String reserveDate =
                     new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd")
                             + (orderInfo.getReserveTime()==0 ? "上午": "下午");
@@ -160,6 +157,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             msmVo.setParam(param);
             msmVo.setTemplateCode("您{code}预约的号议程");
             orderMqVo.setMsmVo(msmVo);
+
             rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_ORDER,MqConst.ROUTING_ORDER,orderMqVo);
 
             //第三步：给就诊人发送预约成功，短信提醒
@@ -268,10 +266,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Override
     public void patientTips() {
         String string = new DateTime().toString("yyyy-MM-dd");
+
         QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("reserve_date", string);
         queryWrapper.ne("order_status", OrderStatusEnum.CANCLE.getStatus());
         List<OrderInfo> list = baseMapper.selectList(queryWrapper);
+
         for (OrderInfo orderInfo : list) {
             //短信提示
             MsmVo msmVo = new MsmVo();
@@ -283,11 +283,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Override
     public Map<String, Object> getCountMap(OrderCountQueryVo orderCountQueryVo) {
         Map<String, Object> map = new HashMap<>();
+
         List<OrderCountVo> orderCountVos = baseMapper.selectOrderCount(orderCountQueryVo);
         //日期列表
         List<String> dateList = orderCountVos.stream().map(OrderCountVo::getReserveDate).collect(Collectors.toList());
         //统计列表
         List<Integer> countList = orderCountVos.stream().map(OrderCountVo::getCount).collect(Collectors.toList());
+
         map.put("dateList", dateList);
         map.put("countList", countList);
         return map;
