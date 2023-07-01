@@ -13,15 +13,13 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
-		<module>model</module>
-		<module>service</module>
-		<module>coder</module>
+		<module>coder_generator</module>
         <module>common</module>
-        <module>service_client</module>
-        <module>service_gateway</module>
-        <module>rabbit_util</module>
 		<module>hospital-manage</module>
-    </modules>
+		<module>service</module>
+		<module>service_client</module>
+		<module>service_gateway</module>
+	</modules>
 
 	<properties>
 		<java.version>1.8</java.version>

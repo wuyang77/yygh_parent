@@ -30,10 +30,7 @@ public class HospitalReceiver {
     })
     public void consume(OrderMqVo orderMqVo, Message message, Channel channel){
         //下单成功更新预约数
-        Schedule schedule = scheduleService.findAllByScheduleId(orderMqVo.getScheduleId());
-        schedule.setReservedNumber(orderMqVo.getReservedNumber());
-        schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
-        scheduleService.update(schedule);
+        scheduleService.update(orderMqVo);
         //发送短信
         MsmVo msmVo = orderMqVo.getMsmVo();
         if (null != msmVo) {

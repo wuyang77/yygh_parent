@@ -3,6 +3,7 @@ package com.wuyang.yygh.hosp.service;
 import com.wuyang.yygh.model.hosp.Schedule;
 import com.wuyang.yygh.vo.hosp.ScheduleOrderVo;
 import com.wuyang.yygh.vo.hosp.ScheduleQueryVo;
+import com.wuyang.yygh.vo.order.OrderMqVo;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -64,7 +65,7 @@ public interface ScheduleService {
 
     /**
      * 更新订单封装对象里面的预约信息
-     * @param orderMqVo
+     * @param
      */
-    void update(Schedule schedule);
+    void update(OrderMqVo orderMqVo);
 }

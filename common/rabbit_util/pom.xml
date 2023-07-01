@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bus-amqp</artifactId>
-        <!--  amqp即为Advanced Message Queuing Protocol（高级消息队列协议）         -->
+        <!--  amqp即为Advanced Message Queuing Protocol（高级消息队列协议） -->
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

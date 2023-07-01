@@ -14,6 +14,7 @@ import com.wuyang.yygh.model.hosp.Schedule;
 import com.wuyang.yygh.vo.hosp.BookingScheduleRuleVo;
 import com.wuyang.yygh.vo.hosp.ScheduleOrderVo;
 import com.wuyang.yygh.vo.hosp.ScheduleQueryVo;
+import com.wuyang.yygh.vo.order.OrderMqVo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.format.DateTimeFormat;
@@ -335,22 +336,19 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void update(Schedule schedule) {
+    public void update(OrderMqVo orderMqVo) {
         //下单成功更新预约数
-//        Schedule schedule = null;
-//        if (orderMqVo.getAvailableNumber() != null) {//预约成功
-//            schedule = scheduleRepository.findById(orderMqVo.getScheduleId()).get();
-//            schedule.setReservedNumber(orderMqVo.getReservedNumber());
-//            schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
-//            scheduleRepository.save(schedule);
-//        }else {//没有预约成功
-//           schedule = scheduleRepository.findScheduleByHosScheduleId(orderMqVo.getScheduleId());
-//           schedule.setAvailableNumber(schedule.getAvailableNumber()+1);
-//            scheduleRepository.save(schedule);
-//        }
-        schedule.setUpdateTime(new Date());
-        //主键一致就是更新
-        scheduleRepository.save(schedule);
+        Schedule schedule = null;
+        if (orderMqVo.getAvailableNumber() != null) {//预约成功
+            schedule = scheduleRepository.findById(orderMqVo.getScheduleId()).get();
+            schedule.setReservedNumber(orderMqVo.getReservedNumber());
+            schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
+            scheduleRepository.save(schedule);
+        }else {//没有预约成功
+           schedule = scheduleRepository.findScheduleByHosScheduleId(orderMqVo.getScheduleId());
+           schedule.setAvailableNumber(schedule.getAvailableNumber()+1);
+            scheduleRepository.save(schedule);
+        }
     }
 
 
