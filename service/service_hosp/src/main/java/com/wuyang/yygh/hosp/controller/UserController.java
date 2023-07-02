@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @RequestMapping("/login")
     public R login(){
-
         return  R.ok().data("token","admin-token");
     }
 
